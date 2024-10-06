@@ -126,7 +126,7 @@ def handle_report(args):
             print(status.error())
     else:
         print(REPORT_USAGE)
-        
+
 # Handles the "set-goal" command to set a target for daily nutrition.
 def handle_set_goal(args):
     if len(args) == 2:
