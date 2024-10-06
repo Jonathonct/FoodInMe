@@ -8,6 +8,13 @@ class FoodItem:
         self.name = name
         self.nutrition_information = nutrition_information.NutritionInformation(calories, carbs, fats, proteins)
         
+    def __add__(self, other):
+        combined_nutrition = self.nutrition_information + other.nutrition_information
+        return FoodItem(self.name, combined_nutrition.calories(), combined_nutrition.carbs, combined_nutrition.fats, combined_nutrition.proteins)
+
+    def name(self):
+        return self.name
+
     def calories(self):
         return self.nutrition_information.calories
 

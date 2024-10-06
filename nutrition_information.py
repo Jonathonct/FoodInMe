@@ -9,6 +9,17 @@ class NutritionInformation:
     def to_csv(self):
         return '{0},{1},{2},{3}'.format(self.calories, self.carbs, self.fats, self.proteins)
 
+    def __iadd__(self, other):
+        return NutritionInformation(
+        self.calories + other.calories,
+        self.carbs + other.carbs,
+        self.fats + other.fats,
+        self.proteins + other.proteins)
+        
+    def to_string(self):
+        return '{0} calories, {1}g carbs, {2}g fat, {3}g protein'.format(
+        self.calories, self.carbs, self.fats, self.proteins)
+
     # Returns a string comparing the nutrition information of this object to another.
     def compare(self, other):
         calorie_delta = self.calories - other.calories

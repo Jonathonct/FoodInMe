@@ -11,6 +11,13 @@ USER_GOAL_FILENAME='goals.csv'
 def goals_filepath():
     return fileutils.user_consumption_dirpath() + USER_GOAL_FILENAME
 
+# Adds item to map if not already existing, or increments otherwise.
+def add_or_increment(dictionary, key, value):
+    if key in dictionary:
+        dictionary[key] += value
+    else:
+        dictionary[key] = value
+
 # Returns a NutritionInformation object aggregating the food consumed in the provided status_filepath,
 # or an error status indicating a failed precondition.
 # If detailed_results is provided as an empty vector, each individual item name will be added.
@@ -24,6 +31,7 @@ def get_daily_nutrition_information(status_date_string, detailed_results=None):
     total_carbs = 0
     total_fats = 0
     total_proteins = 0
+    
     with open(status_filepath, 'r') as input:
         for line in input:
             if line == '': continue # Skip empty lines
@@ -38,7 +46,7 @@ def get_daily_nutrition_information(status_date_string, detailed_results=None):
             except Exception as e:
                 return status.Status(False, 'Failed to parse "{0}" from data/custom_foods.csv as a valid food item'.format(line.strip()))
             if detailed_results is not None:
-                detailed_results.append(fooditem.to_string())
+                add_or_increment(detailed_results, fooditem.name, fooditem.nutrition_information)
     return nutrition_information.NutritionInformation(total_calories, total_carbs, total_fats, total_proteins)
     
 # Returns a NutritionInformation object representing the daily nutrition goals of the user,
@@ -74,7 +82,7 @@ def print_status_report(status_date, detailed_report):
         return status.Status(False, 'Invalid status date. Expected a datetime.date object')
     status_date_string = fileutils.datetime_to_string(status_date)
 
-    detailed_results = [] if detailed_report else None
+    detailed_results = {} if detailed_report else None
     daily_nutrition_info = get_daily_nutrition_information(status_date_string, detailed_results)
     if isinstance(daily_nutrition_info, status.Status):
         return daily_nutrition_info
@@ -87,9 +95,9 @@ def print_status_report(status_date, detailed_report):
     else:
         print(goal_nutrition_info.error())
     
-    if detailed_results is not None:
+    if detailed_results is not None:    
         print('Detailed breakdown of each item:')
-        for result in detailed_results:
-            print(result)
+        for k, v in detailed_results.items():
+            print('{0}: {1}'.format(k.replace('_', ' '), v.to_string()))
 
     return status.Status(True)
