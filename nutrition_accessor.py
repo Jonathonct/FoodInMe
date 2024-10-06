@@ -13,7 +13,8 @@ def goals_filepath():
 
 # Returns a NutritionInformation object aggregating the food consumed in the provided status_filepath,
 # or an error status indicating a failed precondition.
-def get_daily_nutrition_information(status_date_string):
+# If detailed_results is provided as an empty vector, each individual item name will be added.
+def get_daily_nutrition_information(status_date_string, detailed_results=None):
     dirpath = fileutils.user_consumption_dirpath()
     status_filepath = dirpath + status_date_string + '.csv'
     if not os.path.exists(status_filepath):
@@ -36,6 +37,8 @@ def get_daily_nutrition_information(status_date_string):
                 total_proteins += float(fooditem.proteins())
             except Exception as e:
                 return status.Status(False, 'Failed to parse "{0}" from data/custom_foods.csv as a valid food item'.format(line.strip()))
+            if detailed_results is not None:
+                detailed_results.append(fooditem.to_string())
     return nutrition_information.NutritionInformation(total_calories, total_carbs, total_fats, total_proteins)
     
 # Returns a NutritionInformation object representing the daily nutrition goals of the user,
@@ -66,12 +69,13 @@ def set_goals(calories, carbs, fats, proteins):
         output.write(daily_goal)
 
 # Prints the status report for a given date, for the amount of calories and other nutrients consumed.
-def print_status_report(status_date):
+def print_status_report(status_date, detailed_report):
     if not isinstance(status_date, datetime.date):
         return status.Status(False, 'Invalid status date. Expected a datetime.date object')
     status_date_string = fileutils.datetime_to_string(status_date)
 
-    daily_nutrition_info = get_daily_nutrition_information(status_date_string)
+    detailed_results = [] if detailed_report else None
+    daily_nutrition_info = get_daily_nutrition_information(status_date_string, detailed_results)
     if isinstance(daily_nutrition_info, status.Status):
         return daily_nutrition_info
     print('On {0}, you reported consuming {1} calories, {2} grams of carbs, {3} grams of fats and {4} grams of protein'.format(
@@ -82,5 +86,10 @@ def print_status_report(status_date):
         print('Compared to your daily goals, this represents:\n{0}'.format(daily_nutrition_info.compare(goal_nutrition_info).replace(', ', '\n')))
     else:
         print(goal_nutrition_info.error())
+    
+    if detailed_results is not None:
+        print('Detailed breakdown of each item:')
+        for result in detailed_results:
+            print(result)
 
     return status.Status(True)

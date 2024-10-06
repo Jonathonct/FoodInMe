@@ -22,6 +22,10 @@ class FoodItem:
 
     def to_csv(self):
         return '{0},{1}'.format(self.name, self.nutrition_information.to_csv())
+        
+    def to_string(self):
+        return '{0}: {1} calories, {2}g carbs, {3}g fat, {4}g protein'.format(
+        self.name.replace('_', ' '), self.calories(), self.carbs(), self.fats(), self.proteins())
 
 # Attempts to parse the given string into a food item format. 'string' is expected to be in the format:
 # 'name-cal-carbs-fats-proteins' where 'name' is a string and the rest are integers.

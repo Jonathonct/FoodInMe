@@ -15,7 +15,8 @@ The food must already exist in the list of supported food items.  If it has not 
 Optionally, you can specify the amount consumed if it was less than the full amount, e.g. "eat pizza percent=25"
 Optionally, you can specify the date it was consumed if not today, e.g. "eat pineapple date=9-20-2024".'''
 SET_GOAL_USAGE = 'To set your daily nutrition goal, type "set-goal cal-carbs-fats-proteins". Each of the arguments must be a number.'
-REPORT_USAGE = 'Provides a report of the nutritional impact of all foods eaten on a given date, e.g. "report 9-20-2024".'
+REPORT_USAGE = '''Provides a report of the nutritional impact of all foods eaten on a given date, e.g. "report 9-20-2024".
+Optionally, you can specify a detailed breakdown for each food item consumed, e.g. "report 9-20-2024 detail".'''
 
 # Returns True if the user has accepted the prompt, or False otherwise.
 def accepted(string):
@@ -107,7 +108,8 @@ def handle_eat(args):
         
 # Handles the "report" command to print out the report for foods eaten on a given date.
 def handle_report(args):
-    if len(args) == 2:
+    detailed_report = len(args) == 3 and args[2].lower() == 'detail'
+    if len(args) == 2 or detailed_report:
         d = args[1].split('-')
         if len(d) != 3:
             print(REPORT_USAGE)
@@ -121,7 +123,7 @@ def handle_report(args):
             print(REPORT_USAGE)
             return
         status_date = datetime.datetime(year, month, day)
-        status = nutrition_accessor.print_status_report(status_date)
+        status = nutrition_accessor.print_status_report(status_date, detailed_report)
         if not status.okay():
             print(status.error())
     else:
