@@ -1,4 +1,4 @@
-Developed by Jonathon Teague, last updated in September 2024.
+Developed by Jonathon Teague, last updated in October 2024.
 
 This is a simple program that can be used to keep track of the foods eaten
 over the course of a day, and is intended to help the user with their personal
